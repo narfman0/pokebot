@@ -1,0 +1,8 @@
+Pokemon desmume bot. This is an autoit bot that attaches to desmume, detects game state, and sends input to control the game. Currently only grinding is supported.
+
+It is recommended to leave the game on fast forward. The bot uses PixelSearch and should work for any resolution, but for performance it is suggested to keep it in 1x size.
+
+The bot will continuously move left and right until entering an encounter. Upon detecting an encounter, fight will always be selected, and the first move selected ad infinitum.
+
+TODO fainting not detected
+TODO wiping not detected
