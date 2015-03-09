@@ -30,14 +30,14 @@ While True
     $yFaint = 0
     $faint = _ImageSearch("faint.bmp", 1, $xFaint, $yFaint, 70)
     If $disabled = 1 Then
- 	    ;if the disabled dialog has come up, increment our target move
- 	    $moveIdx = $moveIdx + 1
-	    Sleep(2000) ;wait for disabled dialog to go away
+        ;if the disabled dialog has come up, increment our target move
+        $moveIdx = $moveIdx + 1
+        Sleep(2000) ;wait for disabled dialog to go away
     ElseIf $faint = 1 Then
-	    MouseClick("left", $xFaint, $yFaint)
-	    Sleep(500) ;wait for pokemon transition
+        MouseClick("left", $xFaint, $yFaint)
+        Sleep(500) ;wait for pokemon transition
         Send("x")
-	    Sleep(200)
+        Sleep(200)
         Send("x")
     ElseIf ColorInWindow($hWnd, $cgearColor) Then
         SearchMobs()
@@ -63,16 +63,16 @@ EndFunc
 Func AttackMobs()
     ; in fight, spam a
     If $moveIdx = 1 Then
-	    Send("{right}")
-	    Sleep(100)
+        Send("{right}")
+        Sleep(100)
     ElseIf $moveIdx = 2 Then
-	    Send("{down}")
-	    Sleep(100)
+        Send("{down}")
+        Sleep(100)
     ElseIf $moveIdx = 3 Then
-	    Send("{right}")
-	    Sleep(100)
-	    Send("{down}")
-	    Sleep(100)
+        Send("{right}")
+        Sleep(100)
+        Send("{down}")
+        Sleep(100)
     EndIf
     Send("x")
 EndFunc

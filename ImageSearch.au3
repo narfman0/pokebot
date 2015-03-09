@@ -76,11 +76,11 @@ Func _WaitForImageSearch($findImage, $waitSecs, $resultPosition, ByRef $x, ByRef
     $waitSecs = $waitSecs * 1000
     $startTime=TimerInit()
     While TimerDiff($startTime) < $waitSecs
-	    sleep(100)
-	    $result=_ImageSearch($findImage,$resultPosition,$x, $y,$tolerance,$HBMP)
-	    if $result > 0 Then
-		    return 1
-	    EndIf
+        sleep(100)
+        $result=_ImageSearch($findImage,$resultPosition,$x, $y,$tolerance,$HBMP)
+        if $result > 0 Then
+            return 1
+        EndIf
     WEnd
     return 0
 EndFunc
@@ -111,13 +111,13 @@ Func _WaitForImagesSearch($findImage, $waitSecs, $resultPosition, ByRef $x, ByRe
     $waitSecs = $waitSecs * 1000
     $startTime=TimerInit()
     While TimerDiff($startTime) < $waitSecs
-	    for $i = 1 to $findImage[0]
-	 	    sleep(100)
-		    $result=_ImageSearch($findImage[$i],$resultPosition,$x, $y,$tolerance,$HBMP)
-		    if $result > 0 Then
-		 	    return $i
-		    EndIf
-	    Next
+        for $i = 1 to $findImage[0]
+            sleep(100)
+            $result=_ImageSearch($findImage[$i],$resultPosition,$x, $y,$tolerance,$HBMP)
+            if $result > 0 Then
+                return $i
+            EndIf
+        Next
     WEnd
     return 0
 EndFunc
