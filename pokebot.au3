@@ -23,32 +23,53 @@ global $moveIdx = 0
 
 While True
     WinActivate($hWnd)
-    $xDisabled = 0
-    $yDisabled = 0
-    $disabled = _ImageSearch("disabled.bmp", 1, $xDisabled, $yDisabled, 60)
+    $xTarget = 0
+    $yTarget = 0
+    $target = _ImageSearch("attackTarget.bmp", 1, $xTarget, $yTarget, 30)
+    $xFight = 0
+    $yFight = 0
+    $fight = _ImageSearch("fight.bmp", 1, $xFight, $yFight, 30)
     $xFaint = 0
     $yFaint = 0
     $faint = _ImageSearch("faint.bmp", 1, $xFaint, $yFaint, 70)
-    If $disabled = 1 Then
-        ;if the disabled dialog has come up, increment our target move
-        $moveIdx = $moveIdx + 1
-        Sleep(2000) ;wait for disabled dialog to go away
-    ElseIf $faint = 1 Then
-        MouseClick("left", $xFaint, $yFaint)
-        Sleep(500) ;wait for pokemon transition
-        Send("x")
-        Sleep(200)
-        Send("x")
+    $xShift = 0
+    $yShift = 0
+    $shift = _ImageSearch("shift.bmp", 1, $xShift, $yShift, 30)
+    If $faint = 1 Then
+	    HandleFaint($xFaint, $yFaint)
+    ElseIf $target = 1 Then
+		; when the target ui is up, either buff ally or atk enemy (autoselected)
+		Send("x")
+    ElseIf $shift = 1 Then
+		Send("x")
+    ElseIf $fight = 1 Then
+		Send("x")
     ElseIf ColorInWindow($hWnd, $cgearColor) Then
         SearchMobs()
     ElseIf ColorInWindow($hWnd, $fightColor) or ColorInWindow($hWnd, $moveColor) Then
         AttackMobs()
     EndIf
+	Sleep(300)
 WEnd
 
+Func HandleMouseClick($x, $y)
+	MouseMove($x, $y, 0)
+	Sleep(100)
+	MouseClick("left")
+	Sleep(100)
+	MouseMove(0, 0, 0)
+	Sleep(50)
+EndFunc
+
+Func HandleFaint($xFaint, $yFaint)
+	HandleMouseClick($xFaint, $yFaint)
+	Sleep(500) ;wait for pokemon transition
+	Send("x")
+	Sleep(200)
+	Send("x")
+EndFunc
+
 Func SearchMobs()
-    ; clear disabled moves
-    $moveIdx = 0
     ; in cgear, keep moving
     Send("{z down}")
     Send("{left down}")
@@ -62,19 +83,21 @@ EndFunc
 
 Func AttackMobs()
     ; in fight, spam a
-    If $moveIdx = 1 Then
+    If $moveIdx = 0 Then
+        Send("{up}")
+        Sleep(100)
+    ElseIf $moveIdx = 1 Then
         Send("{right}")
         Sleep(100)
     ElseIf $moveIdx = 2 Then
         Send("{down}")
         Sleep(100)
     ElseIf $moveIdx = 3 Then
-        Send("{right}")
-        Sleep(100)
-        Send("{down}")
+        Send("{left}")
         Sleep(100)
     EndIf
     Send("x")
+	$moveIdx = Mod($moveIdx + 1, 4)
 EndFunc
 
 Func ColorInWindow($hWnd, $color)
