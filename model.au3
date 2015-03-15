@@ -14,18 +14,24 @@
 HotKeySet("{PAUSE}", "TogglePause")
 
 global $paused
+global $moveLeft
 global $cgearColor = 0x189494
 global $fightColor = 0xff2118
 global $moveColor = 0x4a5252
 global $inputWait = 1000
 global $hWnd = WinGetHandle("[CLASS:DeSmuME]")
 global $moveIdx = 0
+global $state = 'Not Started'
 
-While True
+Func Update()
+	If $paused Then
+	    $state = 'Paused'
+		Return
+	EndIf
     WinActivate($hWnd)
     $xTarget = 0
     $yTarget = 0
-    $target = _ImageSearch("attackTarget.bmp", 1, $xTarget, $yTarget, 30)
+    $target = _ImageSearch("attackTarget.bmp", 1, $xTarget, $yTarget, 10)
     $xFight = 0
     $yFight = 0
     $fight = _ImageSearch("fight.bmp", 1, $xFight, $yFight, 30)
@@ -35,22 +41,34 @@ While True
     $xShift = 0
     $yShift = 0
     $shift = _ImageSearch("shift.bmp", 1, $xShift, $yShift, 30)
-    If $faint = 1 Then
+    $xFightPokeball = 0
+    $yFightPokeball = 0
+    $fightPokeball = _ImageSearch("fightPokeball.bmp", 1, $xFightPokeball, $yFightPokeball, 30)
+    If $faint Then
 	    HandleFaint($xFaint, $yFaint)
-    ElseIf $target = 1 Then
+		$state = 'Faint'
+    ElseIf $target Then
 		; when the target ui is up, either buff ally or atk enemy (autoselected)
 		Send("x")
-    ElseIf $shift = 1 Then
+		$state = 'Attacking target'
+	    MouseMove($xTarget, $yTarget, 0)
+    ElseIf $shift Then
 		Send("x")
-    ElseIf $fight = 1 Then
+		$state = 'Shifting'
+    ElseIf $fight Then
 		Send("x")
+		$state = 'Fighting'
     ElseIf ColorInWindow($hWnd, $cgearColor) Then
         SearchMobs()
-    ElseIf ColorInWindow($hWnd, $fightColor) or ColorInWindow($hWnd, $moveColor) Then
+		$state = 'Searching for mobs'
+    ElseIf $fightPokeball Then
         AttackMobs()
+	Else
+		Send("x") ; don't know, continue... e.g. gained xp, found random stuff, leveled up, etc
+		$state = 'Unknown'
     EndIf
 	Sleep(300)
-WEnd
+EndFunc
 
 Func HandleMouseClick($x, $y)
 	MouseMove($x, $y, 0)
@@ -72,17 +90,22 @@ EndFunc
 Func SearchMobs()
     ; in cgear, keep moving
     Send("{z down}")
-    Send("{left down}")
-    Sleep($inputWait)
-    Send("{left up}")
-    Send("{right down}")
-    Sleep($inputWait)
-    Send("{right up}")
+	If $moveLeft Then
+        Send("{left down}")
+        Sleep($inputWait)
+        Send("{left up}")
+	Else
+        Send("{right down}")
+        Sleep($inputWait)
+        Send("{right up}")
+    EndIf
     Send("{z up}")
+	$moveLeft = Not $moveLeft
 EndFunc
 
 Func AttackMobs()
     ; in fight, spam a
+		$state = 'Selecting move ' & $moveIdx
     If $moveIdx = 0 Then
         Send("{up}")
         Sleep(100)
@@ -108,7 +131,4 @@ EndFunc
 
 Func TogglePause()
     $paused = NOT $paused
-    While $paused
-        sleep(100)
-    WEnd
 EndFunc
