@@ -51,13 +51,14 @@ Func Update()
 		; when the target ui is up, either buff ally or atk enemy (autoselected)
 		Send("x")
 		$state = 'Attacking target'
-	    MouseMove($xTarget, $yTarget, 0)
+	    HandleMouseClick($xTarget, $yTarget)
     ElseIf $shift Then
 		Send("x")
 		$state = 'Shifting'
     ElseIf $fight Then
 		Send("x")
 		$state = 'Fighting'
+	    HandleMouseClick($xFight, $yFight)
     ElseIf ColorInWindow($hWnd, $cgearColor) Then
         SearchMobs()
 		$state = 'Searching for mobs'
@@ -67,16 +68,15 @@ Func Update()
 		Send("x") ; don't know, continue... e.g. gained xp, found random stuff, leveled up, etc
 		$state = 'Unknown'
     EndIf
-	Sleep(300)
 EndFunc
 
 Func HandleMouseClick($x, $y)
 	MouseMove($x, $y, 0)
-	Sleep(100)
+	Sleep(10)
 	MouseClick("left")
 	Sleep(100)
 	MouseMove(0, 0, 0)
-	Sleep(50)
+	Sleep(10)
 EndFunc
 
 Func HandleFaint($xFaint, $yFaint)
@@ -105,21 +105,20 @@ EndFunc
 
 Func AttackMobs()
     ; in fight, spam a
-		$state = 'Selecting move ' & $moveIdx
+    $state = 'Selecting move ' & $moveIdx
+	Sleep(200)
     If $moveIdx = 0 Then
         Send("{up}")
-        Sleep(100)
     ElseIf $moveIdx = 1 Then
         Send("{right}")
-        Sleep(100)
     ElseIf $moveIdx = 2 Then
         Send("{down}")
-        Sleep(100)
     ElseIf $moveIdx = 3 Then
         Send("{left}")
-        Sleep(100)
     EndIf
+	Sleep(500)
     Send("x")
+	Sleep(200)
 	$moveIdx = Mod($moveIdx + 1, 4)
 EndFunc
 
