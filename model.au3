@@ -29,21 +29,22 @@ Func Update()
 		Return
 	EndIf
     WinActivate($hWnd)
+	$clientSize = GetWindowSize($hWnd)
     $xTarget = 0
     $yTarget = 0
-    $target = _ImageSearch("attackTarget.bmp", 1, $xTarget, $yTarget, 10)
+    $target = _ImageSearchArea("attackTarget.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xTarget, $yTarget, 10)
     $xFight = 0
     $yFight = 0
-    $fight = _ImageSearch("fight.bmp", 1, $xFight, $yFight, 30)
+    $fight = _ImageSearchArea("fight.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xFight, $yFight, 30)
     $xFaint = 0
     $yFaint = 0
-    $faint = _ImageSearch("faint.bmp", 1, $xFaint, $yFaint, 70)
+    $faint = _ImageSearchArea("faint.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xFaint, $yFaint, 70)
     $xShift = 0
     $yShift = 0
-    $shift = _ImageSearch("shift.bmp", 1, $xShift, $yShift, 30)
+    $shift = _ImageSearchArea("shift.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xShift, $yShift, 30)
     $xFightPokeball = 0
     $yFightPokeball = 0
-    $fightPokeball = _ImageSearch("fightPokeball.bmp", 1, $xFightPokeball, $yFightPokeball, 30)
+    $fightPokeball = _ImageSearchArea("fightPokeball.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xFightPokeball, $yFightPokeball, 30)
     If $faint Then
 	    HandleFaint($xFaint, $yFaint)
 		$state = 'Faint'
@@ -68,6 +69,12 @@ Func Update()
 		Send("x") ; don't know, continue... e.g. gained xp, found random stuff, leveled up, etc
 		$state = 'Unknown'
     EndIf
+EndFunc
+
+Func GetWindowSize($hWnd)
+	$clientSize = WinGetPos($hWnd)
+	Local $arr[4] = [$clientSize[0], $clientSize[1], $clientSize[0] + $clientSize[2], $clientSize[1] + $clientSize[3]]
+	return $arr
 EndFunc
 
 Func HandleMouseClick($x, $y)
