@@ -23,6 +23,12 @@ global $hWnd = WinGetHandle("[CLASS:DeSmuME]")
 global $moveIdx = 0
 global $state = 'Not Started'
 
+;variables for move coordinates
+global $moveXDistance = 134
+global $moveYDistance = 48
+global $movePokeballXDistance = 76
+global $movePokeballYDistance = 86
+
 Func Update()
 	If $paused Then
 	    $state = 'Paused'
@@ -45,9 +51,30 @@ Func Update()
     $xFightPokeball = 0
     $yFightPokeball = 0
     $fightPokeball = _ImageSearchArea("fightPokeball.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xFightPokeball, $yFightPokeball, 30)
+    $xPokecenter = 0
+    $yPokecenter = 0
+    $pokecenter = _ImageSearchArea("pokecenter.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xPokecenter, $yPokecenter, 30)
     If $faint Then
 	    HandleFaint($xFaint, $yFaint)
 		$state = 'Faint'
+    ElseIf $pokecenter Then
+		; get through dialog...
+		For $i = 0 To 10
+		    Send("{z}")
+		    sleep(1000)
+		Next
+		; go to victory road
+		Send("{down down}")
+		sleep(3000)
+		Send("{down up}")
+		Send("{left down}")
+		sleep(1500)
+		Send("{left up}")
+		Send("{up down}")
+		sleep(8000)
+		Send("{up up}")
+		$state = 'Pokecentering'
+	    HandleMouseClick($xPokecenter, $yPokecenter)
     ElseIf $target Then
 		; when the target ui is up, either buff ally or atk enemy (autoselected)
 		Send("x")
@@ -64,7 +91,7 @@ Func Update()
         SearchMobs()
 		$state = 'Searching for mobs'
     ElseIf $fightPokeball Then
-        AttackMobs()
+        AttackMobs($xFightPokeball - $movePokeballXDistance, $yFightPokeball - $movePokeballYDistance)
 	Else
 		Send("x") ; don't know, continue... e.g. gained xp, found random stuff, leveled up, etc
 		$state = 'Unknown'
@@ -110,22 +137,26 @@ Func SearchMobs()
 	$moveLeft = Not $moveLeft
 EndFunc
 
-Func AttackMobs()
+Func AttackMobs($x, $y)
     ; in fight, spam a
     $state = 'Selecting move ' & $moveIdx
-	Sleep(200)
+	Sleep(100)
     If $moveIdx = 0 Then
         Send("{up}")
+		HandleMouseClick($x, $y)
     ElseIf $moveIdx = 1 Then
         Send("{right}")
+		HandleMouseClick($x + $moveXDistance, $y)
     ElseIf $moveIdx = 2 Then
         Send("{down}")
+		HandleMouseClick($x + $moveXDistance, $y + $moveYDistance)
     ElseIf $moveIdx = 3 Then
         Send("{left}")
+		HandleMouseClick($x, $y + $moveYDistance)
     EndIf
-	Sleep(500)
+	Sleep(100)
     Send("x")
-	Sleep(200)
+	Sleep(100)
 	$moveIdx = Mod($moveIdx + 1, 4)
 EndFunc
 
