@@ -22,6 +22,7 @@ global $inputWait = 1000
 global $hWnd = WinGetHandle("[CLASS:DeSmuME]")
 global $moveIdx = 0
 global $state = 'Not Started'
+global $pokecenterReturn = "down 1000,left 1500,up 8000"
 
 ;variables for move coordinates
 global $moveXDistance = 134
@@ -30,12 +31,12 @@ global $movePokeballXDistance = 76
 global $movePokeballYDistance = 86
 
 Func Update()
-	If $paused Then
-	    $state = 'Paused'
-		Return
-	EndIf
+    If $paused Then
+        $state = 'Paused'
+        Return
+    EndIf
     WinActivate($hWnd)
-	$clientSize = GetWindowSize($hWnd)
+    $clientSize = GetWindowSize($hWnd)
     $xTarget = 0
     $yTarget = 0
     $target = _ImageSearchArea("attackTarget.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xTarget, $yTarget, 10)
@@ -61,118 +62,120 @@ Func Update()
     $yInBattle = 0
     $inBattle = _ImageSearchArea("inBattle.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xInBattle, $yInBattle, 30)
     If $faint Then
-	    HandleFaint($xFaint, $yFaint)
-		$state = 'Faint'
+        HandleFaint($xFaint, $yFaint)
+        $state = 'Faint'
     ElseIf $inBattle Then
-		For $i = 0 To 5
-		    Send("{z}")
-		    sleep(100)
-		Next
-		$state = 'In Battle'
+        For $i = 0 To 5
+            Send("{z}")
+            sleep(100)
+        Next
+        $state = 'In Battle'
     ElseIf $cantBattle Then
-		Send("{z}")
-		$state = 'Cant Battle'
+        Send("{z}")
+        $state = 'Cant Battle'
     ElseIf $pokecenter Then
-		; get through dialog...
-		For $i = 0 To 10
-		    Send("{z}")
-		    sleep(1000)
-		Next
-		; go to victory road
-		Send("{down down}")
-		sleep(3000)
-		Send("{down up}")
-		Send("{left down}")
-		sleep(1500)
-		Send("{left up}")
-		Send("{up down}")
-		sleep(8000)
-		Send("{up up}")
-		$state = 'Pokecentering'
-	    HandleMouseClick($xPokecenter, $yPokecenter)
+        $state = 'Pokecentering'
+        ; get through dialogs
+        For $i = 0 To 10
+            Send("{z}")
+            sleep(1000)
+        Next
+        ; leave pokecenter
+        Send("{down down}")
+        sleep(2000)
+        Send("{down up}")
+        sleep(1000)
+        ; follow given directions
+        $pokecenterReturnDirections = StringSplit($pokecenterReturn, ",")
+        For $i = 1 To $pokecenterReturnDirections[0]
+            $direction = StringSplit($pokecenterReturnDirections[$i], " ")
+            Send("{" & $direction[1] & " down}")
+            sleep(Int($direction[2]))
+            Send("{" & $direction[1] & " up}")
+        Next
     ElseIf $target Then
-		; when the target ui is up, either buff ally or atk enemy (autoselected)
-		Send("x")
-		$state = 'Attacking target'
-	    HandleMouseClick($xTarget, $yTarget)
+        ; when the target ui is up, either buff ally or atk enemy (autoselected)
+        Send("x")
+        $state = 'Attacking target'
+        HandleMouseClick($xTarget, $yTarget)
     ElseIf $shift Then
-		Send("x")
-		$state = 'Shifting'
+        Send("x")
+        $state = 'Shifting'
     ElseIf $fight Then
-		Send("x")
-		$state = 'Fighting'
-	    HandleMouseClick($xFight, $yFight)
+        Send("x")
+        $state = 'Fighting'
+        HandleMouseClick($xFight, $yFight)
     ElseIf ColorInWindow($hWnd, $cgearColor) Then
         SearchMobs()
-		$state = 'Searching for mobs'
+        $state = 'Searching for mobs'
     ElseIf $fightPokeball Then
         AttackMobs($xFightPokeball - $movePokeballXDistance, $yFightPokeball - $movePokeballYDistance)
-	Else
-		Send("x") ; don't know, continue... e.g. gained xp, found random stuff, leveled up, etc
-		$state = 'Unknown'
+    Else
+        Send("x") ; don't know, continue... e.g. gained xp, found random stuff, leveled up, etc
+        $state = 'Unknown'
     EndIf
 EndFunc
 
 Func GetWindowSize($hWnd)
-	$clientSize = WinGetPos($hWnd)
-	Local $arr[4] = [$clientSize[0], $clientSize[1], $clientSize[0] + $clientSize[2], $clientSize[1] + $clientSize[3]]
-	return $arr
+    $clientSize = WinGetPos($hWnd)
+    Local $arr[4] = [$clientSize[0], $clientSize[1], $clientSize[0] + $clientSize[2], $clientSize[1] + $clientSize[3]]
+    return $arr
 EndFunc
 
 Func HandleMouseClick($x, $y)
-	MouseMove($x, $y, 0)
-	Sleep(10)
-	MouseClick("left")
-	Sleep(100)
-	MouseMove(0, 0, 0)
-	Sleep(10)
+    MouseMove($x, $y, 0)
+    Sleep(10)
+    MouseClick("left")
+    Sleep(100)
+    MouseMove(0, 0, 0)
+    Sleep(10)
 EndFunc
 
 Func HandleFaint($xFaint, $yFaint)
-	HandleMouseClick($xFaint, $yFaint)
-	Sleep(500) ;wait for pokemon transition
-	Send("x")
-	Sleep(200)
-	Send("x")
+    HandleMouseClick($xFaint, $yFaint)
+    Sleep(500) ;wait for pokemon transition
+    Send("x")
+    Sleep(200)
+    Send("x")
 EndFunc
 
 Func SearchMobs()
     ; in cgear, keep moving
     Send("{z down}")
-	If $moveLeft Then
+    If $moveLeft Then
         Send("{left down}")
         Sleep($inputWait)
         Send("{left up}")
-	Else
+    Else
         Send("{right down}")
         Sleep($inputWait)
         Send("{right up}")
     EndIf
     Send("{z up}")
-	$moveLeft = Not $moveLeft
+    $moveLeft = Not $moveLeft
 EndFunc
 
 Func AttackMobs($x, $y)
     ; in fight, spam a
     $state = 'Selecting move ' & $moveIdx
-	Sleep(100)
+    Sleep(100)
     If $moveIdx = 0 Then
         Send("{up}")
-		HandleMouseClick($x, $y)
+        HandleMouseClick($x, $y)
     ElseIf $moveIdx = 1 Then
         Send("{right}")
-		HandleMouseClick($x + $moveXDistance, $y)
+        HandleMouseClick($x + $moveXDistance, $y)
     ElseIf $moveIdx = 2 Then
         Send("{down}")
-		HandleMouseClick($x + $moveXDistance, $y + $moveYDistance)
+        HandleMouseClick($x + $moveXDistance, $y + $moveYDistance)
     ElseIf $moveIdx = 3 Then
         Send("{left}")
-		HandleMouseClick($x, $y + $moveYDistance)
+        HandleMouseClick($x, $y + $moveYDistance)
     EndIf
-	Sleep(100)
+    Sleep(100)
     Send("x")
-	Sleep(100)
-	$moveIdx = Mod($moveIdx + 1, 4)
+    Sleep(100)
+    $moveIdx = Mod($moveIdx + 1, 4)
 EndFunc
 
 Func ColorInWindow($hWnd, $color)
