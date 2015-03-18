@@ -51,7 +51,10 @@ Func Update()
     $shift = _ImageSearchArea("shift.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xShift, $yShift, 30)
     $xFightPokeball = 0
     $yFightPokeball = 0
-    $fightPokeball = _ImageSearchArea("fightPokeball.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xFightPokeball, $yFightPokeball, 30)
+    $fightPokeball = _ImageSearchArea("pokeballRed.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xFightPokeball, $yFightPokeball, 30)
+    $xPokeballYellow = 0
+    $yPokeballYellow = 0
+    $pokeballYellow = _ImageSearchArea("pokeballYellow.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xPokeballYellow, $yPokeballYellow, 30)
     $xPokecenter = 0
     $yPokecenter = 0
     $pokecenter = _ImageSearchArea("pokecenter.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xPokecenter, $yPokecenter, 30)
@@ -108,6 +111,8 @@ Func Update()
     ElseIf ColorInWindow($hWnd, $cgearColor) Then
         SearchMobs()
         $state = 'Searching for mobs'
+    ElseIf $pokeballYellow Then
+        AttackMobs($xPokeballYellow - $movePokeballXDistance, $yPokeballYellow - $movePokeballYDistance)
     ElseIf $fightPokeball Then
         AttackMobs($xFightPokeball - $movePokeballXDistance, $yFightPokeball - $movePokeballYDistance)
     Else
