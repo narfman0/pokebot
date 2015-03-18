@@ -54,9 +54,24 @@ Func Update()
     $xPokecenter = 0
     $yPokecenter = 0
     $pokecenter = _ImageSearchArea("pokecenter.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xPokecenter, $yPokecenter, 30)
+    $xCantBattle = 0
+    $yCantBattle = 0
+    $cantBattle = _ImageSearchArea("cannotBattle.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xCantBattle, $yCantBattle, 30)
+    $xInBattle = 0
+    $yInBattle = 0
+    $inBattle = _ImageSearchArea("inBattle.bmp", 1, $clientSize[0], $clientSize[1], $clientSize[2], $clientSize[3], $xInBattle, $yInBattle, 30)
     If $faint Then
 	    HandleFaint($xFaint, $yFaint)
 		$state = 'Faint'
+    ElseIf $inBattle Then
+		For $i = 0 To 5
+		    Send("{z}")
+		    sleep(100)
+		Next
+		$state = 'In Battle'
+    ElseIf $cantBattle Then
+		Send("{z}")
+		$state = 'Cant Battle'
     ElseIf $pokecenter Then
 		; get through dialog...
 		For $i = 0 To 10
